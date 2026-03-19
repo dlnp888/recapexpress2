@@ -1,3 +1,5 @@
+import { prisma } from '../prismaClient.js';
+
 let tasks = [
     {
         id: 1,
@@ -16,36 +18,37 @@ let tasks = [
     },
 ];
 
-function getAllTasks() {
-    return tasks;
+async function getAllTasks() {
+    return prisma.task.findMany({
+        orderBy: {
+            id: 'asc',
+        },
+    });
 }
 
-function getTaskById(id) {
-    return tasks.find((task) => task.id === id) || null;
+async function getTaskById(id) {
+    return prisma.task.findUnique({
+        where: { id },
+    });
 }
 
-function createTask(title) {
-    const newTask = {
-        id: tasks.length + 1,
-        title,
-        completed: false,
-    };
-    tasks.push(newTask);
-    return newTask;
+async function createTask(title, description) {
+    return prisma.task.create({
+        data: { title, description },
+    });
 }
 
-function updateTask(id, title, completed) {
-    const task = getTaskById(id);
-    if (!task) return null;
-    task.title = title !== undefined ? title : task.title;
-    task.completed = completed !== undefined ? completed : task.completed;
-    return task;
+async function updateTask(id, title, completed) {
+    return prisma.task.update({
+        where: { id },
+        data: { title, completed },
+    });
 }
 
-function deleteTask(id) {
-    const index = tasks.findIndex((task) => task.id === id);
-    if (index === -1) return null;
-    return tasks.splice(index, 1)[0];
+async function deleteTask(id) {
+    return prisma.task.delete({
+        where: { id },
+    });
 }
 
 export default {
